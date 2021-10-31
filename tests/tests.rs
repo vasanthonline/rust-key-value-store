@@ -153,3 +153,11 @@ fn remove_key() {
     store.remove("key1".to_owned());
     assert_eq!(store.get("key1".to_owned()), None);
 }
+
+#[test]
+fn to_string() {
+    let mut store = KvStore::new();
+
+    store.set("key1".to_owned(), "value1".to_owned());
+    assert_eq!(store.to_string(), "key1: value1; ".to_owned());
+}

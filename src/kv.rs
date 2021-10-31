@@ -27,7 +27,7 @@ impl KvStore {
     pub fn to_string(&self) -> String {
         let mut map_string = String::from("");
         for key in self.map.keys() {
-            let key_value = format!("{}: {}", &key, self.get(key.to_string()).as_deref().unwrap_or(""));
+            let key_value = format!("{}: {}; ", &key, self.get(key.to_string()).as_deref().unwrap_or(""));
             map_string.push_str(&key_value);
         }
         return map_string;
