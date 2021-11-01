@@ -24,6 +24,10 @@ impl KvStore {
         self.map.remove(&key);
     }
 
+    pub fn open(&self, path: String) -> &KvStore {
+        return self;
+    }
+
     pub fn to_string(&self) -> String {
         let mut map_string = String::from("");
         for key in self.map.keys() {
