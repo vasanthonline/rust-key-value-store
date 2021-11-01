@@ -1,39 +1,58 @@
-use std::collections::HashMap;
-use std::option::Option;
+use std::fs::File;
+use std::io::{BufReader, BufWriter};
+use std::path::{PathBuf};
+use serde::{Deserialize, Serialize};
+use crate::{Result};
 
 pub struct KvStore {
-    map: HashMap<String, String>
+    path: PathBuf,
+    reader: BufReader<File>,
+    writer: BufWriter<File>
 }
 
 impl KvStore {
-    pub fn new() -> KvStore {
-        KvStore {
-            map: HashMap::new(),
-        }
+
+    pub fn set(&mut self, key: String, value: String) -> Result<()> {
+        let cmd = Command::set(key, value);
+        serde_json::to_writer(&mut self.writer, &cmd)?;
+        Ok(())
     }
 
-    pub fn set(&mut self, key: String, value: String) {
-        self.map.insert(key, value);
-    }
-
-    pub fn get(&self, key: String) -> Option<String> {
-        return self.map.get(&key).cloned();
+    pub fn get(&self, key: String) {
+        
     }
 
     pub fn remove(&mut self, key: String) {
-        self.map.remove(&key);
+        
     }
 
-    pub fn open(&self, path: String) -> &KvStore {
-        return self;
+    pub fn open(&self, path: PathBuf) -> Result<KvStore> {
+        let file = File::create(&path)?;
+        let reader = BufReader::new(file);
+
+        let file_writer = File::open(&path)?;
+        let writer = BufWriter::new(file_writer);
+
+        Ok(KvStore {
+            path,
+            reader,
+            writer
+        })
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+enum Command {
+    Set { key: String, value: String },
+    Remove { key: String },
+}
+
+impl Command {
+    fn set(key: String, value: String) -> Command {
+        Command::Set { key, value }
     }
 
-    pub fn to_string(&self) -> String {
-        let mut map_string = String::from("");
-        for key in self.map.keys() {
-            let key_value = format!("{}: {}; ", &key, self.get(key.to_string()).as_deref().unwrap_or(""));
-            map_string.push_str(&key_value);
-        }
-        return map_string;
+    fn remove(key: String) -> Command {
+        Command::Remove { key }
     }
 }
